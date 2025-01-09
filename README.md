@@ -18,6 +18,7 @@ This project is developing an AI-driven crash analytics dashboard to revolutioni
   <br>
   <em>PostgreSQL Database</em>
 </p>
+
 ## Project Goals
 
 This initiative aims to address the limitations of traditional crash analysis methods, which often rely on manual data processing and can overlook critical trends. Our AI-powered approach will enable tolling agencies to:
