@@ -45,7 +45,7 @@ This initiative aims to address the limitations of traditional crash analysis me
 ## Technologies
 
 * **Frontend:** React, Tailwind CSS, Leaflet
-* * **Database:** PostgreSQL, PostGIS
+* **Database:** PostgreSQL, PostGIS
 * **Backend:** (Planned) FastAPI, GeoPandas
 * **Machine Learning:** (Planned) scikit-learn, PyTorch
 * **Data Processing:** (Planned) Pandas, NumPy
