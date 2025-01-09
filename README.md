@@ -1,4 +1,4 @@
-# AI-Powered Crash Prediction and Analytics 🚗🚨
+# AI-Powered Crash Prediction and Analytics 🚨 🚘💥🚗 🚨
 [![Python](https://img.shields.io/badge/Python-3.12%2B-blue.svg?style=for-the-badge&logo=Python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-%23009688.svg?style=for-the-badge&logo=FastAPI&logoColor=white)](https://fastapi.tiangolo.com/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=for-the-badge&logo=PyTorch&logoColor=white)](https://pytorch.org/)
