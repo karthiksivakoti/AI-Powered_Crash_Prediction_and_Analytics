@@ -12,8 +12,7 @@ class Person(Base):
     person_type = Column(String)
     injury_severity = Column(String)
     age = Column(Integer)
-    gender = Column(String)
-    safety_equipment = Column(String)
     
+    # Relationships
     crash = relationship("Crash", back_populates="persons")
     vehicle = relationship("Vehicle", back_populates="persons")

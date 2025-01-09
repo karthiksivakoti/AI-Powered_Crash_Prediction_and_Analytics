@@ -3,6 +3,7 @@ import Layout from './components/Layout';
 import CrashMap from './components/CrashMap';
 import CrashStatistics from './components/CrashStatistics';
 import AnalyticsPanel from './components/AnalyticsPanel';
+import PredictionsContainer from './components/PredictionsContainer';
 
 function App() {
   return (
@@ -16,6 +17,10 @@ function App() {
           <div className="overflow-y-auto">
             <AnalyticsPanel />
           </div>
+        </div>
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold mb-4">Predictions & Hotspots</h2>
+          <PredictionsContainer />
         </div>
       </div>
     </Layout>

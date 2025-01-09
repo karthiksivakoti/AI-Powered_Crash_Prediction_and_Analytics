@@ -10,7 +10,7 @@ from numpy._core.numeric import (
     asarray, where, int8, int16, int32, int64, intp, empty, promote_types,
     diagonal, nonzero, indices
     )
-from numpy._core.overrides import finalize_array_function_like, set_module
+from numpy._core.overrides import set_array_function_like_doc, set_module
 from numpy._core import overrides
 from numpy._core import iinfo
 from numpy.lib._stride_tricks_impl import broadcast_to
@@ -79,7 +79,6 @@ def fliplr(m):
 
     Examples
     --------
-    >>> import numpy as np
     >>> A = np.diag([1.,2.,3.])
     >>> A
     array([[1.,  0.,  0.],
@@ -90,8 +89,7 @@ def fliplr(m):
            [0.,  2.,  0.],
            [3.,  0.,  0.]])
 
-    >>> rng = np.random.default_rng()
-    >>> A = rng.normal(size=(2,3,5))
+    >>> A = np.random.randn(2,3,5)
     >>> np.all(np.fliplr(A) == A[:,::-1,...])
     True
 
@@ -134,7 +132,6 @@ def flipud(m):
 
     Examples
     --------
-    >>> import numpy as np
     >>> A = np.diag([1.0, 2, 3])
     >>> A
     array([[1.,  0.,  0.],
@@ -145,8 +142,7 @@ def flipud(m):
            [0.,  2.,  0.],
            [1.,  0.,  0.]])
 
-    >>> rng = np.random.default_rng()
-    >>> A = rng.normal(size=(2,3,5))
+    >>> A = np.random.randn(2,3,5)
     >>> np.all(np.flipud(A) == A[::-1,...])
     True
 
@@ -160,7 +156,7 @@ def flipud(m):
     return m[::-1, ...]
 
 
-@finalize_array_function_like
+@set_array_function_like_doc
 @set_module('numpy')
 def eye(N, M=None, k=0, dtype=float, order='C', *, device=None, like=None):
     """
@@ -181,6 +177,8 @@ def eye(N, M=None, k=0, dtype=float, order='C', *, device=None, like=None):
     order : {'C', 'F'}, optional
         Whether the output should be stored in row-major (C-style) or
         column-major (Fortran-style) order in memory.
+
+        .. versionadded:: 1.14.0
     device : str, optional
         The device on which to place the created array. Default: None.
         For Array-API interoperability only, so must be ``"cpu"`` if passed.
@@ -203,7 +201,6 @@ def eye(N, M=None, k=0, dtype=float, order='C', *, device=None, like=None):
 
     Examples
     --------
-    >>> import numpy as np
     >>> np.eye(2, dtype=int)
     array([[1, 0],
            [0, 1]])
@@ -278,7 +275,6 @@ def diag(v, k=0):
 
     Examples
     --------
-    >>> import numpy as np
     >>> x = np.arange(9).reshape((3,3))
     >>> x
     array([[0, 1, 2],
@@ -343,7 +339,6 @@ def diagflat(v, k=0):
 
     Examples
     --------
-    >>> import numpy as np
     >>> np.diagflat([[1,2], [3,4]])
     array([[1, 0, 0, 0],
            [0, 2, 0, 0],
@@ -373,7 +368,7 @@ def diagflat(v, k=0):
     return conv.wrap(res)
 
 
-@finalize_array_function_like
+@set_array_function_like_doc
 @set_module('numpy')
 def tri(N, M=None, k=0, dtype=float, *, like=None):
     """
@@ -404,7 +399,6 @@ def tri(N, M=None, k=0, dtype=float, *, like=None):
 
     Examples
     --------
-    >>> import numpy as np
     >>> np.tri(3, 5, 2, dtype=int)
     array([[1, 1, 1, 0, 0],
            [1, 1, 1, 1, 0],
@@ -466,7 +460,6 @@ def tril(m, k=0):
 
     Examples
     --------
-    >>> import numpy as np
     >>> np.tril([[1,2,3],[4,5,6],[7,8,9],[10,11,12]], -1)
     array([[ 0,  0,  0],
            [ 4,  0,  0],
@@ -511,7 +504,6 @@ def triu(m, k=0):
 
     Examples
     --------
-    >>> import numpy as np
     >>> np.triu([[1,2,3],[4,5,6],[7,8,9],[10,11,12]], -1)
     array([[ 1,  2,  3],
            [ 4,  5,  6],
@@ -567,6 +559,8 @@ def vander(x, N=None, increasing=False):
         Order of the powers of the columns.  If True, the powers increase
         from left to right, if False (the default) they are reversed.
 
+        .. versionadded:: 1.9.0
+
     Returns
     -------
     out : ndarray
@@ -580,7 +574,6 @@ def vander(x, N=None, increasing=False):
 
     Examples
     --------
-    >>> import numpy as np
     >>> x = np.array([1, 2, 3, 5])
     >>> N = 3
     >>> np.vander(x, N)
@@ -723,7 +716,6 @@ def histogram2d(x, y, bins=10, range=None, density=None, weights=None):
 
     Examples
     --------
-    >>> import numpy as np
     >>> from matplotlib.image import NonUniformImage
     >>> import matplotlib.pyplot as plt
 
@@ -856,10 +848,12 @@ def mask_indices(n, mask_func, k=0):
     --------
     triu, tril, triu_indices, tril_indices
 
+    Notes
+    -----
+    .. versionadded:: 1.4.0
+
     Examples
     --------
-    >>> import numpy as np
-
     These are the indices that would allow you to access the upper triangular
     part of any 3x3 array:
 
@@ -904,6 +898,8 @@ def tril_indices(n, k=0, m=None):
     k : int, optional
         Diagonal offset (see `tril` for details).
     m : int, optional
+        .. versionadded:: 1.9.0
+
         The column dimension of the arrays for which the returned
         arrays will be valid.
         By default `m` is taken equal to `n`.
@@ -912,9 +908,8 @@ def tril_indices(n, k=0, m=None):
     Returns
     -------
     inds : tuple of arrays
-        The row and column indices, respectively. The row indices are sorted
-        in non-decreasing order, and the correspdonding column indices are
-        strictly increasing for each row.
+        The indices for the triangle. The returned tuple contains two arrays,
+        each with the indices along one dimension of the array.
 
     See also
     --------
@@ -922,20 +917,19 @@ def tril_indices(n, k=0, m=None):
     mask_indices : generic function accepting an arbitrary mask function.
     tril, triu
 
+    Notes
+    -----
+    .. versionadded:: 1.4.0
+
     Examples
     --------
-    >>> import numpy as np
-
     Compute two different sets of indices to access 4x4 arrays, one for the
     lower triangular part starting at the main diagonal, and one starting two
     diagonals further right:
 
     >>> il1 = np.tril_indices(4)
-    >>> il1
-    (array([0, 1, 1, 2, 2, 2, 3, 3, 3, 3]), array([0, 0, 1, 0, 1, 2, 0, 1, 2, 3]))
+    >>> il2 = np.tril_indices(4, 2)
 
-    Note that row indices (first array) are non-decreasing, and the corresponding
-    column indices (second array) are strictly increasing for each row.
     Here is how they can be used with a sample array:
 
     >>> a = np.arange(16).reshape(4, 4)
@@ -961,7 +955,6 @@ def tril_indices(n, k=0, m=None):
 
     These cover almost the whole array (two diagonals right of the main one):
 
-    >>> il2 = np.tril_indices(4, 2)
     >>> a[il2] = -10
     >>> a
     array([[-10, -10, -10,   3],
@@ -997,9 +990,8 @@ def tril_indices_from(arr, k=0):
 
     Examples
     --------
-    >>> import numpy as np
 
-    Create a 4 by 4 array
+    Create a 4 by 4 array.
 
     >>> a = np.arange(16).reshape(4, 4)
     >>> a
@@ -1032,6 +1024,11 @@ def tril_indices_from(arr, k=0):
     See Also
     --------
     tril_indices, tril, triu_indices_from
+
+    Notes
+    -----
+    .. versionadded:: 1.4.0
+
     """
     if arr.ndim != 2:
         raise ValueError("input array must be 2-d")
@@ -1051,6 +1048,8 @@ def triu_indices(n, k=0, m=None):
     k : int, optional
         Diagonal offset (see `triu` for details).
     m : int, optional
+        .. versionadded:: 1.9.0
+
         The column dimension of the arrays for which the returned
         arrays will be valid.
         By default `m` is taken equal to `n`.
@@ -1059,9 +1058,9 @@ def triu_indices(n, k=0, m=None):
     Returns
     -------
     inds : tuple, shape(2) of ndarrays, shape(`n`)
-        The row and column indices, respectively. The row indices are sorted
-        in non-decreasing order, and the correspdonding column indices are
-        strictly increasing for each row.
+        The indices for the triangle. The returned tuple contains two arrays,
+        each with the indices along one dimension of the array.  Can be used
+        to slice a ndarray of shape(`n`, `n`).
 
     See also
     --------
@@ -1069,20 +1068,18 @@ def triu_indices(n, k=0, m=None):
     mask_indices : generic function accepting an arbitrary mask function.
     triu, tril
 
+    Notes
+    -----
+    .. versionadded:: 1.4.0
+
     Examples
     --------
-    >>> import numpy as np
-
     Compute two different sets of indices to access 4x4 arrays, one for the
     upper triangular part starting at the main diagonal, and one starting two
     diagonals further right:
 
     >>> iu1 = np.triu_indices(4)
-    >>> iu1
-    (array([0, 0, 0, 0, 1, 1, 1, 2, 2, 3]), array([0, 1, 2, 3, 1, 2, 3, 2, 3, 3]))
-
-    Note that row indices (first array) are non-decreasing, and the corresponding
-    column indices (second array) are strictly increasing for each row.
+    >>> iu2 = np.triu_indices(4, 2)
 
     Here is how they can be used with a sample array:
 
@@ -1110,7 +1107,6 @@ def triu_indices(n, k=0, m=None):
     These cover only a small part of the whole array (two diagonals right
     of the main one):
 
-    >>> iu2 = np.triu_indices(4, 2)
     >>> a[iu2] = -10
     >>> a
     array([[ -1,  -1, -10, -10],
@@ -1146,9 +1142,8 @@ def triu_indices_from(arr, k=0):
 
     Examples
     --------
-    >>> import numpy as np
 
-    Create a 4 by 4 array
+    Create a 4 by 4 array.
 
     >>> a = np.arange(16).reshape(4, 4)
     >>> a
@@ -1182,6 +1177,11 @@ def triu_indices_from(arr, k=0):
     See Also
     --------
     triu_indices, triu, tril_indices_from
+
+    Notes
+    -----
+    .. versionadded:: 1.4.0
+
     """
     if arr.ndim != 2:
         raise ValueError("input array must be 2-d")

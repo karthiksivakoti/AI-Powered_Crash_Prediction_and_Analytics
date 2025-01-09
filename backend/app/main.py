@@ -7,7 +7,9 @@ from app.api.v1.router import api_router
 settings = get_settings()
 
 app = FastAPI(
-    title=settings.PROJECT_NAME,
+    title="Crash Analytics API",
+    description="API for crash analytics and hotspot detection",
+    version="1.0.0",
     openapi_url=f"{settings.API_V1_STR}/openapi.json"
 )
 
@@ -20,8 +22,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Include API router
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+@app.get("/")
+def root():
+    return {"message": "Welcome to Crash Analytics API. See /docs for documentation."}

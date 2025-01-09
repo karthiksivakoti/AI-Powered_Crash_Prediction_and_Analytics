@@ -30,7 +30,7 @@ from numpy.testing import (
     assert_array_equal, assert_raises_regex, assert_array_almost_equal,
     assert_allclose, IS_PYPY, IS_WASM, IS_PYSTON, HAS_REFCOUNT,
     assert_array_less, runstring, temppath, suppress_warnings, break_cycles,
-    check_support_sve, assert_array_compare,
+    _SUPPORTS_SVE, assert_array_compare,
     )
 from numpy.testing._private.utils import requires_memory, _no_tracing
 from numpy._core.tests._locales import CommaDecimalPointLocale
@@ -234,7 +234,7 @@ class TestFlags:
         a = np.arange(10)
         setattr(a.flags, flag, flag_value)
 
-        class MyArr:
+        class MyArr():
             __array_struct__ = a.__array_struct__
 
         assert memoryview(a).readonly is not writeable
@@ -265,17 +265,6 @@ class TestFlags:
     def test_void_align(self):
         a = np.zeros(4, dtype=np.dtype([("a", "i4"), ("b", "i4")]))
         assert_(a.flags.aligned)
-
-    @pytest.mark.parametrize("row_size", [5, 1 << 16])
-    @pytest.mark.parametrize("row_count", [1, 5])
-    @pytest.mark.parametrize("ndmin", [0, 1, 2])
-    def test_xcontiguous_load_txt(self, row_size, row_count, ndmin):
-        s = io.StringIO('\n'.join(['1.0 ' * row_size] * row_count))
-        a = np.loadtxt(s, ndmin=ndmin)
-
-        assert a.flags.c_contiguous
-        x = [i for i in a.shape if i != 1]
-        assert a.flags.f_contiguous == (len(x) <= 1)
 
 
 class TestHash:
@@ -617,16 +606,16 @@ class TestAssignment:
     )
     def test_unicode_assignment(self):
         # gh-5049
-        from numpy._core.arrayprint import set_printoptions
+        from numpy._core.arrayprint import set_string_function
 
         @contextmanager
         def inject_str(s):
             """ replace ndarray.__str__ temporarily """
-            set_printoptions(formatter={"all": lambda x: s})
+            set_string_function(lambda x: s, repr=False)
             try:
                 yield
             finally:
-                set_printoptions()
+                set_string_function(None, repr=False)
 
         a1d = np.array(['test'])
         a0d = np.array('done')
@@ -1097,14 +1086,14 @@ class TestCreation:
                 return 1
 
             def __getitem__(self, index):
-                raise ValueError
+                raise ValueError()
 
         class Map:
             def __len__(self):
                 return 1
 
             def __getitem__(self, index):
-                raise KeyError
+                raise KeyError()
 
         a = np.array([Map()])
         assert_(a.shape == (1,))
@@ -1121,7 +1110,7 @@ class TestCreation:
                 if ind in [0, 1]:
                     return ind
                 else:
-                    raise IndexError
+                    raise IndexError()
         d = np.array([Point2(), Point2(), Point2()])
         assert_equal(d.dtype, np.dtype(object))
 
@@ -4025,18 +4014,6 @@ class TestBinop:
         assert res.shape == (3,)
         assert res[0] == 'result'
 
-    @pytest.mark.parametrize("scalar", [
-            np.longdouble(1), np.timedelta64(120, 'm')])
-    @pytest.mark.parametrize("op", [operator.add, operator.xor])
-    def test_scalar_binop_guarantees_ufunc(self, scalar, op):
-        # Test that __array_ufunc__ will always cause ufunc use even when
-        # we have to protect some other calls from recursing (see gh-26904).
-        class SomeClass:
-            def __array_ufunc__(self, ufunc, method, *inputs, **kw):
-                return "result"
-
-        assert SomeClass() + scalar == "result"
-        assert scalar + SomeClass() == "result"
 
     def test_ufunc_override_normalize_signature(self):
         # gh-5674
@@ -4767,7 +4744,7 @@ class TestArgmax:
             ([np.nan, 0, 1, 2, 3], 0),
             ([np.nan, 0, np.nan, 2, 3], 0),
             # To hit the tail of SIMD multi-level(x4, x1) inner loops
-            # on variant SIMD widths
+            # on variant SIMD widthes
             ([1] * (2*5-1) + [np.nan], 2*5-1),
             ([1] * (4*5-1) + [np.nan], 4*5-1),
             ([1] * (8*5-1) + [np.nan], 8*5-1),
@@ -4910,7 +4887,7 @@ class TestArgmin:
             ([np.nan, 0, 1, 2, 3], 0),
             ([np.nan, 0, np.nan, 2, 3], 0),
             # To hit the tail of SIMD multi-level(x4, x1) inner loops
-            # on variant SIMD widths
+            # on variant SIMD widthes
             ([1] * (2*5-1) + [np.nan], 2*5-1),
             ([1] * (4*5-1) + [np.nan], 4*5-1),
             ([1] * (8*5-1) + [np.nan], 8*5-1),
@@ -5114,24 +5091,16 @@ class TestClip:
                 'uint', 1024, 10, 100, inplace=inplace)
 
     @pytest.mark.parametrize("inplace", [False, True])
-    def test_int_out_of_range(self, inplace):
-        # Simple check for out-of-bound integers, also testing the in-place
-        # path.
+    def test_int_range_error(self, inplace):
+        # E.g. clipping uint with negative integers fails to promote
+        # (changed with NEP 50 and may be adaptable)
+        # Similar to last check in `test_basic`
         x = (np.random.random(1000) * 255).astype("uint8")
-        out = np.empty_like(x)
-        res = x.clip(-1, 300, out=out if inplace else None)
-        assert res is out or not inplace
-        assert (res == x).all()
+        with pytest.raises(OverflowError):
+            x.clip(-1, 10, out=x if inplace else None)
 
-        res = x.clip(-1, 50, out=out if inplace else None)
-        assert res is out or not inplace
-        assert (res <= 50).all()
-        assert (res[x <= 50] == x[x <= 50]).all()
-
-        res = x.clip(100, 1000, out=out if inplace else None)
-        assert res is out or not inplace
-        assert (res >= 100).all()
-        assert (res[x >= 100] == x[x >= 100]).all()
+        with pytest.raises(OverflowError):
+            x.clip(0, 256, out=x if inplace else None)
 
     def test_record_array(self):
         rec = np.array([(-5, 2.0, 3.0), (5.0, 4.0, 3.0)],
@@ -5374,13 +5343,6 @@ class TestLexsort:
             u, v = np.array(u, dtype='object'), np.array(v, dtype='object')
             assert_array_equal(idx, np.lexsort((u, v)))
 
-    def test_strings(self):  # gh-27984
-        for dtype in "TU":
-            surnames = np.array(['Hertz',    'Galilei', 'Hertz'], dtype=dtype)
-            first_names = np.array(['Heinrich', 'Galileo', 'Gustav'], dtype=dtype)
-            assert_array_equal(np.lexsort((first_names, surnames)), [1, 2, 0])
-
-
     def test_invalid_axis(self): # gh-7528
         x = np.linspace(0., 1., 42*3).reshape(42, 3)
         assert_raises(AxisError, np.lexsort, x, axis=2)
@@ -5485,7 +5447,7 @@ class TestIO:
 
     def test_roundtrip_repr(self, x):
         x = x.real.ravel()
-        s = "@".join((repr(x)[11:-1] for x in x))
+        s = "@".join(map(lambda x: repr(x)[11:-1], x))
         y = np.fromstring(s, sep="@")
         assert_array_equal(x, y)
 
@@ -6518,11 +6480,11 @@ class TestStats:
                         [True],
                         [False]])
         _cases = [
-            (0, True, 7.07106781*np.ones(5)),
-            (1, True, 1.41421356*np.ones(5)),
+            (0, True, 7.07106781*np.ones((5))),
+            (1, True, 1.41421356*np.ones((5))),
             (0, whf,
              np.array([4.0824829 , 8.16496581, 5., 7.39509973, 8.49836586])),
-            (0, whp, 2.5*np.ones(5))
+            (0, whp, 2.5*np.ones((5)))
         ]
         for _ax, _wh, _res in _cases:
             assert_allclose(a.std(axis=_ax, where=_wh), _res)
@@ -6924,7 +6886,7 @@ class TestDot:
 
     def test_dtype_discovery_fails(self):
         # See gh-14247, error checking was missing for failed dtype discovery
-        class BadObject:
+        class BadObject(object):
             def __array__(self, dtype=None, copy=None):
                 raise TypeError("just this tiny mint leaf")
 
@@ -7285,7 +7247,7 @@ class TestMatmul(MatmulCommon):
 
     def test_matmul_exception_multiply(self):
         # test that matmul fails if `__mul__` is missing
-        class add_not_multiply:
+        class add_not_multiply():
             def __add__(self, other):
                 return self
         a = np.full((3,3), add_not_multiply())
@@ -7294,7 +7256,7 @@ class TestMatmul(MatmulCommon):
 
     def test_matmul_exception_add(self):
         # test that matmul fails if `__add__` is missing
-        class multiply_not_add:
+        class multiply_not_add():
             def __mul__(self, other):
                 return self
         a = np.full((3,3), multiply_not_add())
@@ -8394,7 +8356,7 @@ class TestNewBufferProtocol:
                 np.frombuffer(buffer)
 
 
-class TestArrayCreationCopyArgument:
+class TestArrayCreationCopyArgument(object):
 
     class RaiseOnBool:
 
@@ -8510,9 +8472,10 @@ class TestArrayCreationCopyArgument:
         for copy in self.true_vals:
             res = np.array(arr, copy=copy)
             assert_array_equal(res, base_arr)
-            # An additional copy is no longer forced by NumPy in this case.
-            # NumPy trusts the ArrayLike made a copy:
-            assert res is base_arr
+            # An additional copy is currently forced by numpy in this case,
+            # you could argue, numpy does not trust the ArrayLike. This
+            # may be open for change:
+            assert res is not base_arr
 
         for copy in self.if_needed_vals + self.false_vals:
             res = np.array(arr, copy=copy)
@@ -8545,11 +8508,9 @@ class TestArrayCreationCopyArgument:
         assert_array_equal(arr, base_arr)
         assert arr is base_arr
 
-        # As of NumPy 2.1, explicitly passing copy=True does trigger passing
-        # it to __array__ (deprecation warning is triggered).
-        with pytest.warns(DeprecationWarning,
-                          match="__array__.*must implement.*'copy'"):
-            arr = np.array(a, copy=True)
+        # As of NumPy 2, explicitly passing copy=True does not trigger passing
+        # it to __array__ (deprecation warning is not triggered).
+        arr = np.array(a, copy=True)
         assert_array_equal(arr, base_arr)
         assert arr is not base_arr
 
@@ -8560,46 +8521,11 @@ class TestArrayCreationCopyArgument:
                     match=r"Unable to avoid copy(.|\n)*numpy_2_0_migration_guide.html"):
                 np.array(a, copy=False)
 
-    def test___array__copy_once(self):
-        size = 100
-        base_arr = np.zeros((size, size))
-        copy_arr = np.zeros((size, size))
-
-        class ArrayRandom:
-            def __init__(self):
-                self.true_passed = False
-
-            def __array__(self, dtype=None, copy=None):
-                if copy:
-                    self.true_passed = True
-                    return copy_arr
-                else:
-                    return base_arr
-
-        arr_random = ArrayRandom()
-        first_copy = np.array(arr_random, copy=True)
-        assert arr_random.true_passed
-        assert first_copy is copy_arr
-
-        arr_random = ArrayRandom()
-        no_copy = np.array(arr_random, copy=False)
-        assert not arr_random.true_passed
-        assert no_copy is base_arr
-
-        arr_random = ArrayRandom()
-        _ = np.array([arr_random], copy=True)
-        assert not arr_random.true_passed
-
-        arr_random = ArrayRandom()
-        second_copy = np.array(arr_random, copy=True, order="F")
-        assert arr_random.true_passed
-        assert second_copy is not copy_arr
-
     @pytest.mark.skipif(not HAS_REFCOUNT, reason="Python lacks refcounts")
     def test__array__reference_leak(self):
         class NotAnArray:
-            def __array__(self, dtype=None, copy=None):
-                raise NotImplementedError
+            def __array__(self):
+                raise NotImplementedError()
 
         x = NotAnArray()
 
@@ -8715,7 +8641,7 @@ class TestArrayAttributeDeletion:
             assert_raises(AttributeError, delattr, a, s)
 
 
-class TestArrayInterface:
+class TestArrayInterface():
     class Foo:
         def __init__(self, value):
             self.value = value
@@ -8907,8 +8833,7 @@ class TestConversion:
         assert_equal(bool(np.array([False])), False)
         assert_equal(bool(np.array([True])), True)
         assert_equal(bool(np.array([[42]])), True)
-
-    def test_to_bool_scalar_not_convertible(self):
+        assert_raises(ValueError, bool, np.array([1, 2]))
 
         class NotConvertible:
             def __bool__(self):
@@ -8926,16 +8851,6 @@ class TestConversion:
 
         assert_raises(Error, bool, self_containing)  # previously stack overflow
         self_containing[0] = None  # resolve circular reference
-
-    def test_to_bool_scalar_size_errors(self):
-        with pytest.raises(ValueError, match=".*one element is ambiguous"):
-            bool(np.array([1, 2]))
-
-        with pytest.raises(ValueError, match=".*empty array is ambiguous"):
-            bool(np.empty((3, 0)))
-
-        with pytest.raises(ValueError, match=".*empty array is ambiguous"):
-            bool(np.empty((0,)))
 
     def test_to_int_scalar(self):
         # gh-9972 means that these aren't always the same
@@ -9191,12 +9106,6 @@ if not IS_PYPY:
             assert_(old > sys.getsizeof(d))
             d.resize(150)
             assert_(old < sys.getsizeof(d))
-
-        @pytest.mark.parametrize("dtype", ["u4,f4", "u4,O"])
-        def test_resize_structured(self, dtype):
-            a = np.array([(0, 0.0) for i in range(5)], dtype=dtype)
-            a.resize(1000)
-            assert_array_equal(a, np.zeros(1000, dtype=dtype))
 
         def test_error(self):
             d = np.ones(100)
@@ -9732,8 +9641,7 @@ class TestArrayFinalize:
                 raise Exception(self)
 
         # a plain object can't be weakref'd
-        class Dummy:
-            pass
+        class Dummy: pass
 
         # get a weak reference to an object within an array
         obj_arr = np.array(Dummy())
@@ -9814,7 +9722,7 @@ def test_equal_subclass_no_override(op, dt1, dt2):
 
         def __array_wrap__(self, new, context=None, return_scalar=False):
             type(self).called_wrap += 1
-            return super().__array_wrap__(new, context, return_scalar)
+            return super().__array_wrap__(new)
 
     numpy_arr = np.zeros(5, dtype=dt1)
     my_arr = np.zeros(5, dtype=dt2).view(MyArr)
@@ -10000,7 +9908,7 @@ class TestAlignment:
         elif order is None:
             assert_(x.flags.c_contiguous, err_msg)
         else:
-            raise ValueError
+            raise ValueError()
 
     def test_various_alignments(self):
         for align in [1, 2, 3, 4, 8, 12, 16, 32, 64, None]:
@@ -10126,7 +10034,7 @@ class TestViewDtype:
         assert_array_equal(x.view('<i2'), expected)
 
 
-@pytest.mark.xfail(check_support_sve(), reason="gh-22982")
+@pytest.mark.xfail(_SUPPORTS_SVE, reason="gh-22982")
 # Test various array sizes that hit different code paths in quicksort-avx512
 @pytest.mark.parametrize("N", np.arange(1, 512))
 @pytest.mark.parametrize("dtype", ['e', 'f', 'd'])
@@ -10279,16 +10187,6 @@ def test_partition_fp(N, dtype):
     assert_arr_partitioned(np.sort(arr)[k], k,
             arr[np.argpartition(arr, k, kind='introselect')])
 
-    # Check that `np.inf < np.nan`
-    # This follows np.sort
-    arr[0] = np.nan
-    arr[1] = np.inf
-    o1 = np.partition(arr, -2, kind='introselect')
-    o2 = arr[np.argpartition(arr, -2, kind='introselect')]
-    for out in [o1, o2]:
-        assert_(np.isnan(out[-1]))
-        assert_equal(out[-2], np.inf)
-
 def test_cannot_assign_data():
     a = np.arange(10)
     b = np.linspace(0, 1, 10)
@@ -10319,29 +10217,10 @@ class TestDevice:
     """
     Test arr.device attribute and arr.to_device() method.
     """
-    @pytest.mark.parametrize("func, arg", [
-        (np.arange, 5),
-        (np.empty_like, []),
-        (np.zeros, 5),
-        (np.empty, (5, 5)),
-        (np.asarray, []),
-        (np.asanyarray, []),
-    ])
-    def test_device(self, func, arg):
-        arr = func(arg)
-        assert arr.device == "cpu"
-        arr = func(arg, device=None)
-        assert arr.device == "cpu"
-        arr = func(arg, device="cpu")
-        assert arr.device == "cpu"
+    def test_device(self):
+        arr = np.arange(5)
 
-        with assert_raises_regex(
-            ValueError,
-            r"Device not understood. Only \"cpu\" is allowed, "
-            r"but received: nonsense"
-        ):
-            func(arg, device="nonsense")
-
+        assert arr.device == "cpu"
         with assert_raises_regex(
             AttributeError,
             r"attribute 'device' of '(numpy.|)ndarray' objects is "

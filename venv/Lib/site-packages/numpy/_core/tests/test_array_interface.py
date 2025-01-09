@@ -1,7 +1,7 @@
 import sys
 import pytest
 import numpy as np
-from numpy.testing import extbuild, IS_WASM, IS_EDITABLE
+from numpy.testing import extbuild, IS_WASM
 
 
 @pytest.fixture
@@ -9,12 +9,11 @@ def get_module(tmp_path):
     """ Some codes to generate data and manage temporary buffers use when
     sharing with numpy via the array interface protocol.
     """
-    if sys.platform.startswith('cygwin'):
+
+    if not sys.platform.startswith('linux'):
         pytest.skip('link fails on cygwin')
     if IS_WASM:
         pytest.skip("Can't build module inside Wasm")
-    if IS_EDITABLE:
-        pytest.skip("Can't build module for editable install")
 
     prologue = '''
         #include <Python.h>

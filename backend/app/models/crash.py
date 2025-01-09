@@ -1,5 +1,5 @@
 # app/models/crash.py
-from sqlalchemy import Column, Integer, Float, String, DateTime, Boolean
+from sqlalchemy import Column, Integer, Float, String, DateTime, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from geoalchemy2 import Geometry
 from .base import Base
@@ -20,3 +20,7 @@ class Crash(Base):
     fatal_count = Column(Integer, default=0)
     injury_count = Column(Integer, default=0)
     estimated_location = Column(Boolean, default=False)
+
+    # Relationships
+    vehicles = relationship("Vehicle", back_populates="crash", cascade="all, delete-orphan")
+    persons = relationship("Person", back_populates="crash", cascade="all, delete-orphan")

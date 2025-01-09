@@ -72,13 +72,15 @@ def has_nested_fields(ndtype):
 
     Examples
     --------
-    >>> import numpy as np
     >>> dt = np.dtype([('name', 'S4'), ('x', float), ('y', float)])
     >>> np.lib._iotools.has_nested_fields(dt)
     False
 
     """
-    return any(ndtype[name].names is not None for name in ndtype.names or ())
+    for name in ndtype.names or ():
+        if ndtype[name].names is not None:
+            return True
+    return False
 
 
 def flatten_dtype(ndtype, flatten_base=False):
@@ -98,7 +100,6 @@ def flatten_dtype(ndtype, flatten_base=False):
 
     Examples
     --------
-    >>> import numpy as np
     >>> dt = np.dtype([('name', 'S4'), ('x', float), ('y', float),
     ...                ('block', int, (2, 3))])
     >>> np.lib._iotools.flatten_dtype(dt)
@@ -265,7 +266,6 @@ class NameValidator:
 
     Examples
     --------
-    >>> import numpy as np
     >>> validator = np.lib._iotools.NameValidator()
     >>> validator(['file', 'field2', 'with space', 'CaSe'])
     ('file_', 'field2', 'with_space', 'CaSe')
@@ -403,7 +403,6 @@ def str2bool(value):
 
     Examples
     --------
-    >>> import numpy as np
     >>> np.lib._iotools.str2bool('TRUE')
     True
     >>> np.lib._iotools.str2bool('false')
@@ -565,7 +564,7 @@ class StringConverter:
         >>> StringConverter.upgrade_mapper(dateparser, default=defaultdate)
         """
         # Func is a single functions
-        if callable(func):
+        if hasattr(func, '__call__'):
             cls._mapper.insert(-1, (cls._getsubdtype(default), func, default))
             return
         elif hasattr(func, '__iter__'):
@@ -612,7 +611,7 @@ class StringConverter:
                 dtype = np.dtype(dtype_or_func)
             except TypeError:
                 # dtype_or_func must be a function, then
-                if not callable(dtype_or_func):
+                if not hasattr(dtype_or_func, '__call__'):
                     errmsg = ("The input argument `dtype` is neither a"
                               " function nor a dtype (got '%s' instead)")
                     raise TypeError(errmsg % type(dtype_or_func))
@@ -845,7 +844,6 @@ def easy_dtype(ndtype, names=None, defaultfmt="f%i", **validationargs):
 
     Examples
     --------
-    >>> import numpy as np
     >>> np.lib._iotools.easy_dtype(float)
     dtype('float64')
     >>> np.lib._iotools.easy_dtype("i4, f8")

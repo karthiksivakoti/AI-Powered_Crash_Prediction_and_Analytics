@@ -1,3 +1,4 @@
+import sys
 import fractions
 import decimal
 from typing import Any
@@ -5,7 +6,10 @@ from typing import Any
 import numpy as np
 import numpy.typing as npt
 
-from typing_extensions import assert_type
+if sys.version_info >= (3, 11):
+    from typing import assert_type
+else:
+    from typing_extensions import assert_type
 
 c16 = np.complex128()
 f8 = np.float64()
@@ -34,10 +38,10 @@ SEQ = (0, 1, 2, 3, 4)
 
 # object-like comparisons
 
-assert_type(i8 > fractions.Fraction(1, 5), np.bool)
-assert_type(i8 > [fractions.Fraction(1, 5)], npt.NDArray[np.bool])
-assert_type(i8 > decimal.Decimal("1.5"), np.bool)
-assert_type(i8 > [decimal.Decimal("1.5")], npt.NDArray[np.bool])
+assert_type(i8 > fractions.Fraction(1, 5), Any)
+assert_type(i8 > [fractions.Fraction(1, 5)], Any)
+assert_type(i8 > decimal.Decimal("1.5"), Any)
+assert_type(i8 > [decimal.Decimal("1.5")], Any)
 
 # Time structures
 

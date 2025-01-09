@@ -3,7 +3,6 @@
 """
 __all__ = ['finfo', 'iinfo']
 
-import types
 import warnings
 
 from .._utils import set_module
@@ -147,12 +146,10 @@ _MACHAR_PARAMS = {
         title = _title_fmt.format('half'))}
 
 # Key to identify the floating point type.  Key is result of
+# ftype('-0.1').newbyteorder('<').tobytes()
 #
-#    ftype = np.longdouble        # or float64, float32, etc.
-#    v = (ftype(-1.0) / ftype(10.0))
-#    v.view(v.dtype.newbyteorder('<')).tobytes()
-#
-# Uses division to work around deficiencies in strtold on some platforms.
+# 20230201 - use (ftype(-1.0) / ftype(10.0)).newbyteorder('<').tobytes()
+#            instead because stold may have deficiencies on some platforms.
 # See:
 # https://perl5.git.perl.org/perl.git/blob/3118d7d684b56cbeb702af874f4326683c45f045:/Configure
 
@@ -478,7 +475,6 @@ class finfo:
 
     Examples
     --------
-    >>> import numpy as np
     >>> np.finfo(np.float64).dtype
     dtype('float64')
     >>> np.finfo(np.complex64).dtype
@@ -487,8 +483,6 @@ class finfo:
     """
 
     _finfo_cache = {}
-
-    __class_getitem__ = classmethod(types.GenericAlias)
 
     def __new__(cls, dtype):
         try:
@@ -667,7 +661,6 @@ class iinfo:
     --------
     With types:
 
-    >>> import numpy as np
     >>> ii16 = np.iinfo(np.int16)
     >>> ii16.min
     -32768
@@ -691,8 +684,6 @@ class iinfo:
 
     _min_vals = {}
     _max_vals = {}
-
-    __class_getitem__ = classmethod(types.GenericAlias)
 
     def __init__(self, int_type):
         try:

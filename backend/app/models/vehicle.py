@@ -12,5 +12,6 @@ class Vehicle(Base):
     initial_impact = Column(String)
     damage_extent = Column(String)
     
+    # Relationships
     crash = relationship("Crash", back_populates="vehicles")
-    persons = relationship("Person", back_populates="vehicle")
+    persons = relationship("Person", back_populates="vehicle", cascade="all, delete-orphan")

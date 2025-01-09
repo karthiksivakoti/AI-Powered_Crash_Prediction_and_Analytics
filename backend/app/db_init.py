@@ -1,15 +1,24 @@
 # app/db_init.py
-from sqlalchemy import create_engine, Column, Integer, Float, String, DateTime, Boolean, MetaData
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy import create_engine, Column, Integer, Float, String, DateTime, Boolean
 from geoalchemy2 import Geometry
 import os
+from dotenv import load_dotenv
 
-# Database connection
-DATABASE_URL = "postgresql://postgres:your_password@localhost:5432/crash_analytics"
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(bind=engine)
+# Load environment variables
+load_dotenv()
 
+# Get database URL from environment variable or use default
+DATABASE_URL = os.getenv(
+    'DATABASE_URL', 
+    "postgresql://postgres:postgres123@localhost:5432/crash_analytics"
+)
+
+# Create engine and session
+engine = create_engine(DATABASE_URL, echo=True)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# Create declarative base
 Base = declarative_base()
 
 class Crash(Base):
@@ -30,8 +39,9 @@ class Crash(Base):
     estimated_location = Column(Boolean, default=False)
 
 def init_db():
+    print("Creating database tables...")
     Base.metadata.create_all(bind=engine)
+    print("Database tables created successfully!")
 
 if __name__ == "__main__":
     init_db()
-    print("Database tables created!")

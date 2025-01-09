@@ -65,7 +65,6 @@ def ix_(*args):
 
     Examples
     --------
-    >>> import numpy as np
     >>> a = np.arange(10).reshape(2, 5)
     >>> a
     array([[0, 1, 2, 3, 4],
@@ -141,7 +140,6 @@ class nd_grid:
     Users should use these pre-defined instances instead of using `nd_grid`
     directly.
     """
-    __slots__ = ('sparse',)
 
     def __init__(self, sparse=False):
         self.sparse = sparse
@@ -241,7 +239,6 @@ class MGridClass(nd_grid):
 
     Examples
     --------
-    >>> import numpy as np
     >>> np.mgrid[0:5, 0:5]
     array([[[0, 0, 0, 0, 0],
             [1, 1, 1, 1, 1],
@@ -264,7 +261,6 @@ class MGridClass(nd_grid):
     (3, 4, 5, 6)
 
     """
-    __slots__ = ()
 
     def __init__(self):
         super().__init__(sparse=False)
@@ -316,7 +312,6 @@ class OGridClass(nd_grid):
      array([[0, 1, 2, 3, 4]]))
 
     """
-    __slots__ = ()
 
     def __init__(self):
         super().__init__(sparse=True)
@@ -331,8 +326,6 @@ class AxisConcatenator:
 
     For detailed documentation on usage, see `r_`.
     """
-    __slots__ = ('axis', 'matrix', 'trans1d', 'ndmin')
-
     # allow ma.mr_ to override this
     concatenate = staticmethod(_nx.concatenate)
     makemat = staticmethod(matrixlib.matrix)
@@ -447,7 +440,7 @@ class AxisConcatenator:
     def __len__(self):
         return 0
 
-# separate classes are used here instead of just making r_ = concatenator(0),
+# separate classes are used here instead of just making r_ = concatentor(0),
 # etc. because otherwise we couldn't get the doc string to come out right
 # in help(r_)
 
@@ -512,7 +505,6 @@ class RClass(AxisConcatenator):
 
     Examples
     --------
-    >>> import numpy as np
     >>> np.r_[np.array([1,2,3]), 0, 0, np.array([4,5,6])]
     array([1, 2, 3, ..., 4, 5, 6])
     >>> np.r_[-1:1:6j, [0]*3, 5, 6]
@@ -547,7 +539,6 @@ class RClass(AxisConcatenator):
     matrix([[1, 2, 3, 4, 5, 6]])
 
     """
-    __slots__ = ()
 
     def __init__(self):
         AxisConcatenator.__init__(self, 0)
@@ -572,7 +563,6 @@ class CClass(AxisConcatenator):
 
     Examples
     --------
-    >>> import numpy as np
     >>> np.c_[np.array([1,2,3]), np.array([4,5,6])]
     array([[1, 4],
            [2, 5],
@@ -581,7 +571,6 @@ class CClass(AxisConcatenator):
     array([[1, 2, 3, ..., 4, 5, 6]])
 
     """
-    __slots__ = ()
 
     def __init__(self):
         AxisConcatenator.__init__(self, -1, ndmin=2, trans1d=0)
@@ -608,7 +597,6 @@ class ndenumerate:
 
     Examples
     --------
-    >>> import numpy as np
     >>> a = np.array([[1, 2], [3, 4]])
     >>> for index, x in np.ndenumerate(a):
     ...     print(index, x)
@@ -661,8 +649,6 @@ class ndindex:
 
     Examples
     --------
-    >>> import numpy as np
-
     Dimensions as individual arguments
 
     >>> for index in np.ndindex(3, 2, 1):
@@ -776,7 +762,6 @@ class IndexExpression:
 
     Examples
     --------
-    >>> import numpy as np
     >>> np.s_[2::2]
     slice(2, None, 2)
     >>> np.index_exp[2::2]
@@ -786,7 +771,6 @@ class IndexExpression:
     array([2, 4])
 
     """
-    __slots__ = ('maketuple',)
 
     def __init__(self, maketuple):
         self.maketuple = maketuple
@@ -841,13 +825,14 @@ def fill_diagonal(a, val, wrap=False):
 
     Notes
     -----
+    .. versionadded:: 1.4.0
+
     This functionality can be obtained via `diag_indices`, but internally
     this version uses a much faster implementation that never constructs the
     indices and uses simple slicing.
 
     Examples
     --------
-    >>> import numpy as np
     >>> a = np.zeros((3, 3), int)
     >>> np.fill_diagonal(a, 5)
     >>> a
@@ -968,10 +953,12 @@ def diag_indices(n, ndim=2):
     --------
     diag_indices_from
 
+    Notes
+    -----
+    .. versionadded:: 1.4.0
+
     Examples
     --------
-    >>> import numpy as np
-
     Create a set of indices to access the diagonal of a (4, 4) array:
 
     >>> di = np.diag_indices(4)
@@ -1030,10 +1017,13 @@ def diag_indices_from(arr):
     --------
     diag_indices
 
+    Notes
+    -----
+    .. versionadded:: 1.4.0
+
     Examples
     --------
-    >>> import numpy as np
-
+    
     Create a 4 by 4 array.
 
     >>> a = np.arange(16).reshape(4, 4)
@@ -1042,7 +1032,7 @@ def diag_indices_from(arr):
            [ 4,  5,  6,  7],
            [ 8,  9, 10, 11],
            [12, 13, 14, 15]])
-
+    
     Get the indices of the diagonal elements.
 
     >>> di = np.diag_indices_from(a)
