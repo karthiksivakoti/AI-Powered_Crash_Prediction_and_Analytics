@@ -1,12 +1,18 @@
 # app/core/config.py
-from pydantic import BaseModel
+from functools import lru_cache
+from pydantic_settings import BaseSettings
 
-class Settings(BaseModel):
-    DATABASE_URL: str = "postgresql://user:password@localhost:5432/crash_analytics"
+class Settings(BaseSettings):
+    DATABASE_URL: str = "postgresql://postgres:your_password@localhost:5432/crash_analytics"
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "Crash Analytics API"
     
     class Config:
         env_file = ".env"
 
-settings = Settings()
+@lru_cache()
+def get_settings():
+    return Settings()
+
+# Create a settings instance
+settings = get_settings()

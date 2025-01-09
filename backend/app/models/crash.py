@@ -1,5 +1,5 @@
 # app/models/crash.py
-from sqlalchemy import Column, Integer, Float, String, DateTime, func
+from sqlalchemy import Column, Integer, Float, String, DateTime, Boolean
 from sqlalchemy.orm import relationship
 from geoalchemy2 import Geometry
 from .base import Base
@@ -10,7 +10,7 @@ class Crash(Base):
     id = Column(Integer, primary_key=True, index=True)
     crn = Column(String, unique=True, index=True)
     crash_datetime = Column(DateTime, index=True)
-    location = Column(Geometry('POINT'))
+    location = Column(Geometry('POINT', srid=4326))
     county = Column(String)
     municipality = Column(String)
     hour_of_day = Column(Integer)
@@ -19,6 +19,4 @@ class Crash(Base):
     severity = Column(String)
     fatal_count = Column(Integer, default=0)
     injury_count = Column(Integer, default=0)
-    
-    vehicles = relationship("Vehicle", back_populates="crash")
-    persons = relationship("Person", back_populates="crash")
+    estimated_location = Column(Boolean, default=False)
