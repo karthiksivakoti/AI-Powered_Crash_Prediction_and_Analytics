@@ -35,7 +35,7 @@ This initiative aims to address the limitations of traditional crash analysis me
 
 * **Improve Safety Standards:**  Identify safety standards that may require updating based on real-world crash data analysis, contributing to more effective and relevant safety regulations.
 
-## Current Progress (Frontend)
+## Current Progress (Frontend and Database)
 
 * **Interactive Dashboard:**  A user-friendly dashboard has been developed to visualize and interact with crash data.
 * **Geospatial Visualization:**  Integrated mapping capabilities to display crash locations and analyze spatial patterns.
