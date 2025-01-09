@@ -13,7 +13,11 @@ This project is developing an AI-driven crash analytics dashboard to revolutioni
   <br>
   <em>Crash Analytics Dashboard</em>
 </p>
-
+<p align="center">
+  <img src="PostgreSQL Database.png" alt="PostgreSQL Database" width="800" height="550"/>
+  <br>
+  <em>PostgreSQL Database</em>
+</p>
 ## Project Goals
 
 This initiative aims to address the limitations of traditional crash analysis methods, which often rely on manual data processing and can overlook critical trends. Our AI-powered approach will enable tolling agencies to:
@@ -35,7 +39,8 @@ This initiative aims to address the limitations of traditional crash analysis me
 * **Interactive Dashboard:**  A user-friendly dashboard has been developed to visualize and interact with crash data.
 * **Geospatial Visualization:**  Integrated mapping capabilities to display crash locations and analyze spatial patterns.
 * **Crash Statistics:**  Visualizations of key crash statistics, including total crashes, fatalities, injuries, and vehicle involvement, provide an initial overview of crash trends.
-
+* **Database Implementation:**  Establish a robust database infrastructure to store and manage crash data efficiently.
+  
 ## Technologies
 
 * **Frontend:** React, Tailwind CSS, Leaflet
@@ -47,7 +52,6 @@ This initiative aims to address the limitations of traditional crash analysis me
 
 ## Future Development
 
-* **Database Implementation:**  Establish a robust database infrastructure to store and manage crash data efficiently.
 * **Backend Development:**  Create a backend API to serve data to the frontend and handle complex queries.
 * **AI/ML Integration:**  Develop and integrate AI/ML models for crash prediction, hotspot identification, and countermeasure recommendation.
 * **Advanced Analytics:**  Implement functionalities for in-depth crash data analysis, including natural language processing of crash narratives.
