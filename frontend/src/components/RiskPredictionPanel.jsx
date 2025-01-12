@@ -1,115 +1,118 @@
-// src/components/RiskPredictionPanel.jsx
-import React from 'react';
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
-  PieChart, Pie, Cell
-} from 'recharts';
+// frontend/src/components/RiskPredictionPanel.jsx
+import React, { useState } from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import axios from 'axios';
 
-const RISK_COLORS = {
-  HIGH: '#ff0000',
-  MEDIUM: '#ffa500',
-  LOW: '#00ff00'
-};
+const RiskPredictionPanel = ({ selectedLocation }) => {
+  const [prediction, setPrediction] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-const RiskPredictionPanel = ({ predictions, selectedLocation }) => {
-  // Process predictions data for visualization
-  const hourlyRiskData = Array.from({ length: 24 }, (_, hour) => {
-    const risk = predictions.find(p => p.hour === hour) || { risk_level: 'LOW', probability: 0 };
-    return {
-      hour: `${hour}:00`,
-      risk: risk.probability * 100,
-      riskLevel: risk.risk_level
-    };
-  });
+  // Effect to get prediction when location changes
+  React.useEffect(() => {
+    if (selectedLocation) {
+      getPrediction();
+    }
+  }, [selectedLocation]);
 
-  const riskDistribution = Object.entries(
-    predictions.reduce((acc, p) => {
-      acc[p.risk_level] = (acc[p.risk_level] || 0) + 1;
-      return acc;
-    }, {})
-  ).map(([level, count]) => ({
-    name: level,
-    value: count
-  }));
+  const getPrediction = async () => {
+    if (!selectedLocation) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await axios.post('http://localhost:8000/api/v1/predictions/predict/risk', {
+        latitude: selectedLocation.latitude,
+        longitude: selectedLocation.longitude,
+        weather: "1",
+        road_condition: "1",
+        timestamp: new Date().toISOString()
+      });
+
+      setPrediction(response.data);
+    } catch (err) {
+      setError(err.message);
+      console.error('Error getting prediction:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getRiskColor = (riskLevel) => {
+    switch (riskLevel) {
+      case 'HIGH':
+        return 'text-red-600';
+      case 'MEDIUM':
+        return 'text-yellow-600';
+      case 'LOW':
+        return 'text-green-600';
+      default:
+        return 'text-gray-600';
+    }
+  };
 
   return (
-    <div className="space-y-6 p-4">
-      <div className="bg-white rounded-lg shadow p-4">
-        <h2 className="text-lg font-semibold mb-4">Risk Predictions</h2>
-        
-        {selectedLocation && (
-          <div className="mb-4">
-            <h3 className="font-medium">Selected Location</h3>
-            <p>Latitude: {selectedLocation.latitude.toFixed(4)}</p>
-            <p>Longitude: {selectedLocation.longitude.toFixed(4)}</p>
-            <div className="mt-2">
-              <div className={`
-                inline-flex items-center px-3 py-1 rounded-full text-sm
-                ${selectedLocation.risk_level === 'HIGH' ? 'bg-red-100 text-red-800' :
-                  selectedLocation.risk_level === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' :
-                  'bg-green-100 text-green-800'}
-              `}>
-                {selectedLocation.risk_level} Risk
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle>Risk Prediction</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {loading && (
+          <div className="flex items-center justify-center p-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          </div>
+        )}
+
+        {error && (
+          <div className="bg-red-100 text-red-700 p-4 rounded-md">
+            Error getting prediction: {error}
+          </div>
+        )}
+
+        {prediction && (
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <span>Risk Level:</span>
+              <span className={`font-bold ${getRiskColor(prediction.risk_level)}`}>
+                {prediction.risk_level}
+              </span>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <span>Crash Probability:</span>
+              <span className="font-bold">
+                {(prediction.severe_crash_probability * 100).toFixed(1)}%
+              </span>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <span>Severity Score:</span>
+              <span className="font-bold">
+                {prediction.expected_severity_score.toFixed(2)}
+              </span>
+            </div>
+
+            <div className="mt-4 p-4 bg-gray-50 rounded-md">
+              <h4 className="font-semibold mb-2">Conditions:</h4>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>Time: {prediction.features_used.time}:00</div>
+                <div>Month: {prediction.features_used.month}</div>
+                <div>Weather Risk: {prediction.features_used.weather_risk}</div>
+                <div>Road Risk: {prediction.features_used.road_risk}</div>
+                <div>Weekend: {prediction.features_used.is_weekend ? 'Yes' : 'No'}</div>
               </div>
             </div>
           </div>
         )}
 
-        <div className="h-64">
-          <BarChart
-            width={500}
-            height={250}
-            data={hourlyRiskData}
-            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="hour" />
-            <YAxis label={{ value: 'Risk %', angle: -90, position: 'insideLeft' }} />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="risk" name="Risk Level">
-              {hourlyRiskData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={RISK_COLORS[entry.riskLevel]} />
-              ))}
-            </Bar>
-          </BarChart>
-        </div>
-
-        <div className="h-64 mt-6">
-          <PieChart width={300} height={250}>
-            <Pie
-              data={riskDistribution}
-              dataKey="value"
-              nameKey="name"
-              cx="50%"
-              cy="50%"
-              outerRadius={100}
-              label
-            >
-              {riskDistribution.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={RISK_COLORS[entry.name]} />
-              ))}
-            </Pie>
-            <Tooltip />
-            <Legend />
-          </PieChart>
-        </div>
-      </div>
-
-      {selectedLocation?.contributing_factors && (
-        <div className="bg-white rounded-lg shadow p-4">
-          <h3 className="font-semibold mb-2">Contributing Factors</h3>
-          <div className="space-y-2">
-            {Object.entries(selectedLocation.contributing_factors).map(([factor, value]) => (
-              <div key={factor} className="flex justify-between items-center">
-                <span className="text-gray-600">{factor}</span>
-                <span className="font-medium">{(value * 100).toFixed(1)}%</span>
-              </div>
-            ))}
+        {!prediction && !loading && !error && (
+          <div className="text-gray-500 text-center p-4">
+            Select a location on the map to see risk prediction
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 

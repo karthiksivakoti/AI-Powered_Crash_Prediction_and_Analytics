@@ -1,27 +1,52 @@
-// src/App.jsx
-import React from 'react';
+// frontend/src/App.jsx
+import React, { useState } from 'react';
 import Layout from './components/Layout';
 import CrashMap from './components/CrashMap';
+import HotspotMap from './components/HotspotMap';
 import CrashStatistics from './components/CrashStatistics';
 import AnalyticsPanel from './components/AnalyticsPanel';
-import PredictionsContainer from './components/PredictionsContainer';
 
 function App() {
+  const [activeMap, setActiveMap] = useState('crashes'); // 'crashes' or 'hotspots'
+
   return (
     <Layout>
       <div className="space-y-6 p-4">
+        {/* Top row - Statistics */}
         <CrashStatistics />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="h-[800px]">
-            <CrashMap />
-          </div>
-          <div className="overflow-y-auto">
-            <AnalyticsPanel />
-          </div>
+        
+        {/* Map Selection */}
+        <div className="flex gap-4 items-center">
+          <button
+            onClick={() => setActiveMap('crashes')}
+            className={`px-4 py-2 rounded ${
+              activeMap === 'crashes'
+                ? 'bg-blue-500 text-white'
+                : 'bg-gray-200 text-gray-700'
+            }`}
+          >
+            Crash Map
+          </button>
+          <button
+            onClick={() => setActiveMap('hotspots')}
+            className={`px-4 py-2 rounded ${
+              activeMap === 'hotspots'
+                ? 'bg-blue-500 text-white'
+                : 'bg-gray-200 text-gray-700'
+            }`}
+          >
+            Hotspot Analysis
+          </button>
         </div>
+        
+        {/* Map Display */}
+        <div className="h-[800px]">
+          {activeMap === 'crashes' ? <CrashMap /> : <HotspotMap />}
+        </div>
+        
+        {/* Bottom row - Analytics */}
         <div className="mt-8">
-          <h2 className="text-2xl font-bold mb-4">Predictions & Hotspots</h2>
-          <PredictionsContainer />
+          <AnalyticsPanel />
         </div>
       </div>
     </Layout>
