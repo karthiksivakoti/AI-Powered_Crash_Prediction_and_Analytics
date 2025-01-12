@@ -141,57 +141,95 @@ class RiskPredictor:
             'count_rmse': np.sqrt(np.mean((self.count_model.predict(X_test) - y_cnt_test) ** 2))
         }
     
-    def predict_risk(self, features: Dict) -> Dict:
-        """
-        Predict crash risk for given conditions
-        """
-        # Create feature DataFrame
-        df = pd.DataFrame([{
-            'crash_datetime': features.get('timestamp', datetime.now()),
-            'hour_of_day': features.get('hour', datetime.now().hour),
-            'weather': features.get('weather', '1'),
-            'road_condition': features.get('road_condition', '1'),
-            'longitude': features['longitude'],
-            'latitude': features['latitude']
-        }])
-        
-        # Engineer features
-        df = self._engineer_features(df)
-        
-        # Prepare features
-        feature_cols = [
-            'hour_sin', 'hour_cos', 'month_sin', 'month_cos',
-            'is_weekend', 'weather_risk', 'road_risk',
-            'longitude', 'latitude'
-        ]
-        X = df[feature_cols]
-        
-        # Scale features
-        X_scaled = self.scaler.transform(X)
-        
-        # Make predictions
-        severity_prob = self.severity_model.predict_proba(X_scaled)[0][1]
-        count_pred = max(0, self.count_model.predict(X_scaled)[0])
-        
-        return {
-            'severe_crash_probability': float(severity_prob),
-            'expected_severity_score': float(count_pred),
-            'risk_level': 'HIGH' if severity_prob > 0.7 else 'MEDIUM' if severity_prob > 0.3 else 'LOW',
-            'features_used': {
-                'time': df['hour_of_day'].iloc[0],
-                'weather_risk': df['weather_risk'].iloc[0],
-                'road_risk': df['road_risk'].iloc[0],
-                'is_weekend': bool(df['is_weekend'].iloc[0])
-            }
-        }
-    
     def load_models(self):
         """Load pretrained models"""
         try:
-            self.severity_model = joblib.load(os.path.join(self.model_dir, 'severity_model.joblib'))
-            self.count_model = joblib.load(os.path.join(self.model_dir, 'count_model.joblib'))
-            self.scaler = joblib.load(os.path.join(self.model_dir, 'risk_scaler.joblib'))
+            model_files = {
+                'severity_model': os.path.join(self.model_dir, 'severity_model.joblib'),
+                'count_model': os.path.join(self.model_dir, 'count_model.joblib'),
+                'scaler': os.path.join(self.model_dir, 'risk_scaler.joblib')
+            }
+            
+            # Check if all model files exist
+            for path in model_files.values():
+                if not os.path.exists(path):
+                    print(f"Model file not found: {path}")
+                    return False
+            
+            # Load models
+            self.severity_model = joblib.load(model_files['severity_model'])
+            self.count_model = joblib.load(model_files['count_model'])
+            self.scaler = joblib.load(model_files['scaler'])
+            
+            print("Models loaded successfully")
             return True
         except Exception as e:
             print(f"Error loading models: {str(e)}")
             return False
+
+    def predict_risk(self, features: Dict) -> Dict:
+        """Predict crash risk for given conditions"""
+        try:
+            # Ensure models are loaded
+            if not self.severity_model or not self.count_model or not self.scaler:
+                success = self.load_models()
+                if not success:
+                    raise ValueError("Models not loaded. Please train the models first.")
+            
+            # Create feature DataFrame with current timestamp if not provided
+            current_time = datetime.now()
+            timestamp = features.get('timestamp', current_time)
+            if isinstance(timestamp, str):
+                timestamp = datetime.fromisoformat(timestamp.replace('T', ' '))
+            
+            df = pd.DataFrame([{
+                'crash_datetime': timestamp,
+                'hour_of_day': timestamp.hour,
+                'weather': str(features.get('weather', '1')),
+                'road_condition': str(features.get('road_condition', '1')),
+                'longitude': float(features['longitude']),
+                'latitude': float(features['latitude'])
+            }])
+            
+            # Engineer features
+            df = self._engineer_features(df)
+            
+            # Prepare features
+            feature_cols = [
+                'hour_sin', 'hour_cos', 'month_sin', 'month_cos',
+                'is_weekend', 'weather_risk', 'road_risk',
+                'longitude', 'latitude'
+            ]
+            X = df[feature_cols]
+            
+            # Print feature values for debugging
+            print("Feature values:")
+            print(X.to_dict('records')[0])
+            
+            # Check for NaN values
+            if X.isna().any().any():
+                missing_cols = X.columns[X.isna().any()].tolist()
+                raise ValueError(f"Missing values in columns: {missing_cols}")
+            
+            # Scale features
+            X_scaled = self.scaler.transform(X)
+            
+            # Make predictions
+            severity_prob = float(self.severity_model.predict_proba(X_scaled)[0][1])
+            count_pred = float(max(0, self.count_model.predict(X_scaled)[0]))
+            
+            return {
+                'severe_crash_probability': severity_prob,
+                'expected_severity_score': count_pred,
+                'risk_level': 'HIGH' if severity_prob > 0.7 else 'MEDIUM' if severity_prob > 0.3 else 'LOW',
+                'features_used': {
+                    'time': int(df['hour_of_day'].iloc[0]),
+                    'weather_risk': float(df['weather_risk'].iloc[0]),
+                    'road_risk': float(df['road_risk'].iloc[0]),
+                    'is_weekend': bool(df['is_weekend'].iloc[0]),
+                    'month': int(timestamp.month)
+                }
+            }
+        except Exception as e:
+            print(f"Error in predict_risk: {str(e)}")
+            raise
