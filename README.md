@@ -1,4 +1,4 @@
-# AI-Powered Crash Prediction and Analytics 🚗🚨
+# AI-Powered Crash Prediction and Analytics  🚘💥🚗 
 [![Python](https://img.shields.io/badge/Python-3.12%2B-blue.svg?style=for-the-badge&logo=Python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-%23009688.svg?style=for-the-badge&logo=FastAPI&logoColor=white)](https://fastapi.tiangolo.com/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=for-the-badge&logo=PyTorch&logoColor=white)](https://pytorch.org/)
@@ -13,8 +13,13 @@ This project is developing an AI-driven crash analytics dashboard to revolutioni
   <br>
   <em>Crash Analytics Dashboard</em>
 </p>
+<p align="center">
+  <img src="PostgreSQL Database.png" alt="PostgreSQL Database" width="800" height="550"/>
+  <br>
+  <em>PostgreSQL Database</em>
+</p>
 
-## Project Goals
+## Project Goals 🚨
 
 This initiative aims to address the limitations of traditional crash analysis methods, which often rely on manual data processing and can overlook critical trends. Our AI-powered approach will enable tolling agencies to:
 
@@ -30,24 +35,24 @@ This initiative aims to address the limitations of traditional crash analysis me
 
 * **Improve Safety Standards:**  Identify safety standards that may require updating based on real-world crash data analysis, contributing to more effective and relevant safety regulations.
 
-## Current Progress (Frontend)
+## Current Progress (Frontend and Database) ✅
 
 * **Interactive Dashboard:**  A user-friendly dashboard has been developed to visualize and interact with crash data.
 * **Geospatial Visualization:**  Integrated mapping capabilities to display crash locations and analyze spatial patterns.
 * **Crash Statistics:**  Visualizations of key crash statistics, including total crashes, fatalities, injuries, and vehicle involvement, provide an initial overview of crash trends.
-
-## Technologies
+* **Database Implementation:**  Establish a robust database infrastructure to store and manage crash data efficiently.
+  
+## Technologies 💻
 
 * **Frontend:** React, Tailwind CSS, Leaflet
+* **Database:** PostgreSQL, PostGIS
 * **Backend:** (Planned) FastAPI, GeoPandas
-* **Database:** (Planned) PostgreSQL, PostGIS
 * **Machine Learning:** (Planned) scikit-learn, PyTorch
 * **Data Processing:** (Planned) Pandas, NumPy
 * **Visualization:** (Planned) Recharts, Plotly
 
-## Future Development
+## Future Development 📌
 
-* **Database Implementation:**  Establish a robust database infrastructure to store and manage crash data efficiently.
 * **Backend Development:**  Create a backend API to serve data to the frontend and handle complex queries.
 * **AI/ML Integration:**  Develop and integrate AI/ML models for crash prediction, hotspot identification, and countermeasure recommendation.
 * **Advanced Analytics:**  Implement functionalities for in-depth crash data analysis, including natural language processing of crash narratives.
