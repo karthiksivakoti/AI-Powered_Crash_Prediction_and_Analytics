@@ -14,6 +14,11 @@ This project is developing an AI-driven crash analytics dashboard to revolutioni
   <em>Crash Analytics Dashboard</em>
 </p>
 <p align="center">
+  <img src="AI Crash Prediction.png" alt="AI Crash Prediction" width="800" height="550"/>
+  <br>
+  <em>AI Crash Prediction</em>
+</p>
+<p align="center">
   <img src="PostgreSQL Database.png" alt="PostgreSQL Database" width="800" height="550"/>
   <br>
   <em>PostgreSQL Database</em>
