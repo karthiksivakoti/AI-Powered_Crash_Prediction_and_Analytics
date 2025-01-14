@@ -14,12 +14,12 @@ This project is developing an AI-driven crash analytics dashboard to revolutioni
   <em>Crash Analytics Dashboard</em>
 </p>
 <p align="center">
-  <img src="AI Crash Prediction.png" alt="AI Crash Prediction" width="800" height="550"/>
+  <img src="AI Crash Prediction.png" alt="AI Crash Prediction" width="800" height="450"/>
   <br>
   <em>AI Crash Prediction</em>
 </p>
 <p align="center">
-  <img src="PostgreSQL Database.png" alt="PostgreSQL Database" width="800" height="550"/>
+  <img src="PostgreSQL Database.png" alt="PostgreSQL Database" width="800" height="450"/>
   <br>
   <em>PostgreSQL Database</em>
 </p>
@@ -40,12 +40,15 @@ This initiative aims to address the limitations of traditional crash analysis me
 
 * **Improve Safety Standards:**  Identify safety standards that may require updating based on real-world crash data analysis, contributing to more effective and relevant safety regulations.
 
-## Current Progress (Frontend and Database) ✅
+## Features 📌
 
 * **Interactive Dashboard:**  A user-friendly dashboard has been developed to visualize and interact with crash data.
 * **Geospatial Visualization:**  Integrated mapping capabilities to display crash locations and analyze spatial patterns.
 * **Crash Statistics:**  Visualizations of key crash statistics, including total crashes, fatalities, injuries, and vehicle involvement, provide an initial overview of crash trends.
 * **Database Implementation:**  Establish a robust database infrastructure to store and manage crash data efficiently.
+* **Backend Development:**  Backend API to serve data to the frontend and handle complex queries.
+* **AI/ML Integration:**  Integrated AI/ML models for crash prediction, hotspot identification, and countermeasure recommendation.
+* **Advanced Analytics:**  Implemented functionalities for in-depth crash data analysis, including natural language processing of crash narratives.
   
 ## Technologies 💻
 
@@ -55,11 +58,5 @@ This initiative aims to address the limitations of traditional crash analysis me
 * **Machine Learning:** (Planned) scikit-learn, PyTorch
 * **Data Processing:** (Planned) Pandas, NumPy
 * **Visualization:** (Planned) Recharts, Plotly
-
-## Future Development 📌
-
-* **Backend Development:**  Create a backend API to serve data to the frontend and handle complex queries.
-* **AI/ML Integration:**  Develop and integrate AI/ML models for crash prediction, hotspot identification, and countermeasure recommendation.
-* **Advanced Analytics:**  Implement functionalities for in-depth crash data analysis, including natural language processing of crash narratives.
 
 This project is actively under development. Stay tuned for updates and contributions are welcome!
