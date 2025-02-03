@@ -8,6 +8,11 @@
 
 This project is developing an AI-driven crash analytics dashboard to revolutionize how tolling agencies approach road safety. By harnessing the power of artificial intelligence and machine learning, this tool will provide in-depth insights into crash data, predict potential hotspots, and recommend effective countermeasures.
 
+
+https://github.com/user-attachments/assets/79495e0d-f898-4ab2-9239-476f35dbcf86
+
+
+
 <p align="center">
   <img src="Crash Analytics Dashboard.png" alt="Crash Analytics Dashboard" width="800" height="550"/>
   <br>
