@@ -12,9 +12,9 @@ This project is developing an AI-driven crash analytics dashboard to revolutioni
 https://github.com/user-attachments/assets/79495e0d-f898-4ab2-9239-476f35dbcf86
 
 <p align="center">
-  <img src="AI Prediction Dashboard - High Risk.png" alt="High Risk" width="250" height="200"/>
-  <img src="AI Prediction Dashboard - Medium Risk.png" alt="Medium Risk" width="250" height="200"/>
-  <img src="AI Prediction Dashboard - Low Risk.png" alt="Low Risk" width="250" height="200"/>
+  <img src="AI Prediction Dashboard - High Risk.png" alt="High Risk" width="3000" height="200"/>
+  <img src="AI Prediction Dashboard - Medium Risk.png" alt="Medium Risk" width="3000" height="200"/>
+  <img src="AI Prediction Dashboard - Low Risk.png" alt="Low Risk" width="3000" height="200"/>
   <br>
   <em>Crash Predictions - High, Medium, and Low</em>
 </p>
