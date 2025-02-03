@@ -19,6 +19,11 @@ https://github.com/user-attachments/assets/79495e0d-f898-4ab2-9239-476f35dbcf86
   <em>Crash Predictions - High, Medium, and Low</em>
 </p>
 <p align="center">
+  <img src="Historical Analysis.png" alt="Historical Analysis" width="800" height="450"/>
+  <br>
+  <em>Historical Analysis</em>
+</p>
+<p align="center">
   <img src="PostgreSQL Database.png" alt="PostgreSQL Database" width="800" height="450"/>
   <br>
   <em>PostgreSQL Database</em>
