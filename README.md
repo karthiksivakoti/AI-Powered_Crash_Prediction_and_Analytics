@@ -54,9 +54,9 @@ This initiative aims to address the limitations of traditional crash analysis me
 
 * **Frontend:** React, Tailwind CSS, Leaflet
 * **Database:** PostgreSQL, PostGIS
-* **Backend:** (Planned) FastAPI, GeoPandas
-* **Machine Learning:** (Planned) scikit-learn, PyTorch
-* **Data Processing:** (Planned) Pandas, NumPy
-* **Visualization:** (Planned) Recharts, Plotly
+* **Backend:**  FastAPI, GeoPandas
+* **Machine Learning:**  scikit-learn, PyTorch
+* **Data Processing:**  Pandas, NumPy
+* **Visualization:**  Recharts, Plotly
 
-This project is actively under development. Stay tuned for updates and contributions are welcome!
+
