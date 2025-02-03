@@ -12,17 +12,6 @@ This project is developing an AI-driven crash analytics dashboard to revolutioni
 https://github.com/user-attachments/assets/79495e0d-f898-4ab2-9239-476f35dbcf86
 
 
-
-<p align="center">
-  <img src="Crash Analytics Dashboard.png" alt="Crash Analytics Dashboard" width="800" height="550"/>
-  <br>
-  <em>Crash Analytics Dashboard</em>
-</p>
-<p align="center">
-  <img src="AI Crash Prediction.png" alt="AI Crash Prediction" width="800" height="450"/>
-  <br>
-  <em>AI Crash Prediction</em>
-</p>
 <p align="center">
   <img src="PostgreSQL Database.png" alt="PostgreSQL Database" width="800" height="450"/>
   <br>
